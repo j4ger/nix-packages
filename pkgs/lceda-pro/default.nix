@@ -1,6 +1,19 @@
 { stdenv, fetchzip, lib
-  , gtk4
-  , ffmpeg
+  , glib
+  , nss
+  , nspr
+  , at-spi2-atk
+  , cups
+  , dbus
+  , libdrm
+  , gtk3
+  , pango
+  , xorg
+  , mesa
+  , expat
+  , libxkbcommon
+  , alsa-lib
+  , cairo
 }:
 
 stdenv.mkDerivation rec {
@@ -27,12 +40,33 @@ stdenv.mkDerivation rec {
   '';
 
   preFixup = let
-    libPath = lib.makeLibraryPath [
-      gtk4
-    ];
+    libPath = lib.makeLibraryPath ([
+      glib
+      nss
+      nspr
+      at-spi2-atk
+      cups
+      dbus
+      libdrm
+      gtk3
+      pango
+      mesa
+      expat
+      libxkbcommon
+      alsa-lib
+      cairo
+    ] ++ (with xorg; [
+      libX11
+      libXcomposite
+      libXdamage
+      libXext
+      libXfixes
+      libXrandr
+      libxcb
+    ]));
   in ''
     patchelf \
-      --set-rpath "${libPath}" \
+      --set-rpath "${libPath}:$out/lceda-pro" \
       $out/lceda-pro/lceda-pro
   '';
 
