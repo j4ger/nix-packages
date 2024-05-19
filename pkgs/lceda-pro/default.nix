@@ -1,21 +1,6 @@
 { stdenv, fetchzip, lib, makeDesktopItem, makeWrapper
-  , glib
-  , nss
-  , nspr
-  , at-spi2-atk
-  , cups
-  , dbus
-  , libdrm
-  , gtk3
-  , pango
-  , xorg
-  , mesa
-  , expat
-  , libxkbcommon
-  , alsa-lib
-  , cairo
   , xdg-utils
-  , libGL
+  , electron_29
 }:
 
 let
@@ -29,6 +14,7 @@ let
       "Name[zh_CN]" = "立创EDA专业版";
     };
   };
+  electron = electron_29;
 in
 stdenv.mkDerivation rec {
   pname = "lceda-pro";
@@ -47,12 +33,15 @@ stdenv.mkDerivation rec {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/bin
+    mkdir -p $out/bin $TEMPDIR/lceda-pro
     cp -rf lceda-pro $out/lceda-pro
-    chmod -R 755 $out/lceda-pro
+    mv $out/lceda-pro/resources/app/assets/db/lceda-std.elib $TEMPDIR/lceda-pro/db.elib
+    ln -s $TEMPDIR/lceda-pro/db.elib $out/lceda-pro/resources/app/assets/db/lceda-std.elib
 
-    makeWrapper $out/lceda-pro/lceda-pro $out/bin/lceda-pro \
-      --set LD_LIBRARY_PATH "${lib.makeLibraryPath [ libGL ]}" \
+    makeWrapper ${electron}/bin/electron $out/bin/lceda-pro \
+      --add-flags $out/lceda-pro/resources/app/ \
+      --add-flags "--ozone-platform-hint=auto --enable-wayland-ime" \
+      --set LD_LIBRARY_PATH "${lib.makeLibraryPath [ stdenv.cc.cc ]}" \
       --set PATH "${lib.makeBinPath [xdg-utils]}"
 
     mkdir -p $out/share/icons/{64x64,64x64@2,128x128,128x128@2,256x256,256x256@2,512x512,512x512@2}/apps
@@ -71,34 +60,9 @@ stdenv.mkDerivation rec {
     runHook postInstall
   '';
 
-  preFixup = let
-    libPath = lib.makeLibraryPath ([
-      glib
-      nss
-      nspr
-      at-spi2-atk
-      cups
-      dbus
-      libdrm
-      gtk3
-      pango
-      mesa
-      expat
-      libxkbcommon
-      alsa-lib
-      cairo
-    ] ++ (with xorg; [
-      libX11
-      libXcomposite
-      libXdamage
-      libXext
-      libXfixes
-      libXrandr
-      libxcb
-    ]));
-  in ''
+  preFixup = ''
     patchelf \
-      --set-rpath "${libPath}:$out/lceda-pro" \
+      --set-rpath "$out/lceda-pro" \
       $out/lceda-pro/lceda-pro
   '';
 
