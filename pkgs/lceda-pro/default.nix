@@ -52,7 +52,8 @@ stdenv.mkDerivation rec {
     chmod -R 755 $out/lceda-pro
 
     makeWrapper $out/lceda-pro/lceda-pro $out/bin/lceda-pro \
-      --set LD_LIBRARY_PATH "${lib.makeLibraryPath [ libGL ]}"
+      --set LD_LIBRARY_PATH "${lib.makeLibraryPath [ libGL ]}" \
+      --set PATH "${lib.makeBinPath [xdg-utils]}"
 
     mkdir -p $out/share/icons/{64x64,64x64@2,128x128,128x128@2,256x256,256x256@2,512x512,512x512@2}/apps
     ln -s $out/lceda-pro/icon/icon_64x64.png $out/share/icons/64x64/apps/lceda.png
@@ -99,13 +100,6 @@ stdenv.mkDerivation rec {
     patchelf \
       --set-rpath "${libPath}:$out/lceda-pro" \
       $out/lceda-pro/lceda-pro
-  '';
-
-  postFixUp = ''
-    wrapProgram $out/lceda-pro/lceda-pro \
-      --set PATH ${lib.makeBinPath [
-        xdg-utils
-      ]} \
   '';
 
   meta = with lib; {
