@@ -1,4 +1,4 @@
-{ stdenv, fetchzip, lib
+{ stdenv, fetchzip, lib, makeDesktopItem, makeWrapper
   , glib
   , nss
   , nspr
@@ -14,8 +14,22 @@
   , libxkbcommon
   , alsa-lib
   , cairo
+  , xdg-utils
+  , libGL
 }:
 
+let
+  desktopEntry = makeDesktopItem {
+    name = "lceda-pro";
+    desktopName = "LCEDA Pro";
+    exec = "lceda-pro %u";
+    icon = "LCEDA";
+    categories = [ "Development" ];
+    extraConfig = {
+      "Name[zh_CN]" = "立创EDA专业版";
+    };
+  };
+in
 stdenv.mkDerivation rec {
   pname = "lceda-pro";
   version = "2.1.59";
@@ -28,13 +42,30 @@ stdenv.mkDerivation rec {
   dontConfigure = true;
   dontBuild = true;
 
+  nativeBuildInputs = [ makeWrapper ];
+
   installPhase = ''
     runHook preInstall
 
-    mkdir $out $out/bin
+    mkdir -p $out/bin
     cp -rf lceda-pro $out/lceda-pro
     chmod -R 755 $out/lceda-pro
-    ln -s $out/lceda-pro/lceda-pro $out/bin/lceda-pro
+
+    makeWrapper $out/lceda-pro/lceda-pro $out/bin/lceda-pro \
+      --set LD_LIBRARY_PATH "${lib.makeLibraryPath [ libGL ]}"
+
+    mkdir -p $out/share/icons/{64x64,64x64@2,128x128,128x128@2,256x256,256x256@2,512x512,512x512@2}/apps
+    ln -s $out/lceda-pro/icon/icon_64x64.png $out/share/icons/64x64/apps/lceda.png
+    ln -s $out/lceda-pro/icon/icon_64x64@2x.png $out/share/icons/64x64@2/apps/lceda.png
+    ln -s $out/lceda-pro/icon/icon_128x128.png $out/share/icons/128x128/apps/lceda.png
+    ln -s $out/lceda-pro/icon/icon_128x128@2x.png $out/share/icons/128x128@2/apps/lceda.png
+    ln -s $out/lceda-pro/icon/icon_256x256.png $out/share/icons/256x256/apps/lceda.png
+    ln -s $out/lceda-pro/icon/icon_256x256@2x.png $out/share/icons/256x256@2/apps/lceda.png
+    ln -s $out/lceda-pro/icon/icon_512x512.png $out/share/icons/512x512/apps/lceda.png
+    ln -s $out/lceda-pro/icon/icon_512x512@2x.png $out/share/icons/512x512@2/apps/lceda.png
+
+    mkdir -p $out/share/applications
+    ln -s "${desktopEntry}" "$out/share/applications/lceda-pro.desktop"
 
     runHook postInstall
   '';
@@ -68,6 +99,13 @@ stdenv.mkDerivation rec {
     patchelf \
       --set-rpath "${libPath}:$out/lceda-pro" \
       $out/lceda-pro/lceda-pro
+  '';
+
+  postFixUp = ''
+    wrapProgram $out/lceda-pro/lceda-pro \
+      --set PATH ${lib.makeBinPath [
+        xdg-utils
+      ]} \
   '';
 
   meta = with lib; {
