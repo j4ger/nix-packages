@@ -4,16 +4,6 @@
 }:
 
 let
-  desktopEntry = makeDesktopItem {
-    name = "lceda-pro";
-    desktopName = "LCEDA Pro";
-    exec = "lceda-pro %u";
-    icon = "lceda";
-    categories = [ "Development" ];
-    extraConfig = {
-      "Name[zh_CN]" = "立创EDA专业版";
-    };
-  };
   electron = electron_29;
 in
 stdenv.mkDerivation rec {
@@ -44,15 +34,9 @@ stdenv.mkDerivation rec {
       --set LD_LIBRARY_PATH "${lib.makeLibraryPath [ stdenv.cc.cc ]}" \
       --set PATH "${lib.makeBinPath [xdg-utils]}"
 
-    mkdir -p $out/share/icons/{64x64,64x64@2,128x128,128x128@2,256x256,256x256@2,512x512,512x512@2}/apps
-    ln -s $out/lceda-pro/icon/icon_64x64.png $out/share/icons/64x64/apps/lceda.png
-    ln -s $out/lceda-pro/icon/icon_64x64@2x.png $out/share/icons/64x64@2/apps/lceda.png
-    ln -s $out/lceda-pro/icon/icon_128x128.png $out/share/icons/128x128/apps/lceda.png
-    ln -s $out/lceda-pro/icon/icon_128x128@2x.png $out/share/icons/128x128@2/apps/lceda.png
-    ln -s $out/lceda-pro/icon/icon_256x256.png $out/share/icons/256x256/apps/lceda.png
-    ln -s $out/lceda-pro/icon/icon_256x256@2x.png $out/share/icons/256x256@2/apps/lceda.png
-    ln -s $out/lceda-pro/icon/icon_512x512.png $out/share/icons/512x512/apps/lceda.png
-    ln -s $out/lceda-pro/icon/icon_512x512@2x.png $out/share/icons/512x512@2/apps/lceda.png
+    mkdir -p $out/share/icons/hicolor/512x512/apps
+    install -Dm444 $out/lceda-pro/icon/icon_512x512.png $out/share/icons/lceda.png
+    install -Dm444 $out/lceda-pro/icon/icon_512x512.png $out/share/icons/hicolor/512x512/apps/lceda.png
 
     mkdir -p $out/share/applications
 
@@ -65,7 +49,17 @@ stdenv.mkDerivation rec {
       $out/lceda-pro/lceda-pro
   '';
 
-  desktopItems = [ desktopEntry ];
+  desktopItems = [ makeDesktopItem {
+      name = "lceda-pro";
+      desktopName = "LCEDA Pro";
+      exec = "lceda-pro %u";
+      icon = "lceda";
+      categories = [ "Development" ];
+      extraConfig = {
+        "Name[zh_CN]" = "立创EDA专业版";
+      };
+    }
+  ];
 
   meta = with lib; {
     homepage = "https://lceda.cn/";
