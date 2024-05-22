@@ -1,4 +1,4 @@
-{ stdenv, fetchzip, lib, makeDesktopItem, makeWrapper
+{ stdenv, fetchzip, lib, makeDesktopItem, makeWrapper, copyDesktopItems
   , xdg-utils
   , electron_29
 }:
@@ -28,7 +28,7 @@ stdenv.mkDerivation rec {
   dontConfigure = true;
   dontBuild = true;
 
-  nativeBuildInputs = [ makeWrapper ];
+  nativeBuildInputs = [ makeWrapper copyDesktopItems ];
 
   installPhase = ''
     runHook preInstall
