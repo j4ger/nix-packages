@@ -55,7 +55,6 @@ stdenv.mkDerivation rec {
     ln -s $out/lceda-pro/icon/icon_512x512@2x.png $out/share/icons/512x512@2/apps/lceda.png
 
     mkdir -p $out/share/applications
-    ln -s "${desktopEntry}" "$out/share/applications/lceda-pro.desktop"
 
     runHook postInstall
   '';
@@ -65,6 +64,8 @@ stdenv.mkDerivation rec {
       --set-rpath "$out/lceda-pro" \
       $out/lceda-pro/lceda-pro
   '';
+
+  desktopItems = [ desktopEntry ];
 
   meta = with lib; {
     homepage = "https://lceda.cn/";
