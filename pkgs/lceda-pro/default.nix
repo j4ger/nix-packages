@@ -4,6 +4,16 @@
 }:
 
 let
+  desktopEntry = makeDesktopItem {
+    name = "lceda-pro";
+    desktopName = "LCEDA Pro";
+    exec = "lceda-pro %u";
+    icon = "lceda";
+    categories = [ "Development" ];
+    extraConfig = {
+      "Name[zh_CN]" = "立创EDA专业版";
+    };
+  };
   electron = electron_29;
 in
 stdenv.mkDerivation rec {
@@ -49,17 +59,7 @@ stdenv.mkDerivation rec {
       $out/lceda-pro/lceda-pro
   '';
 
-  desktopItems = [ makeDesktopItem {
-      name = "lceda-pro";
-      desktopName = "LCEDA Pro";
-      exec = "lceda-pro %u";
-      icon = "lceda";
-      categories = [ "Development" ];
-      extraConfig = {
-        "Name[zh_CN]" = "立创EDA专业版";
-      };
-    }
-  ];
+  desktopItems = [ desktopEntry ];
 
   meta = with lib; {
     homepage = "https://lceda.cn/";
