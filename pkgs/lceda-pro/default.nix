@@ -8,7 +8,7 @@ let
     name = "lceda-pro";
     desktopName = "LCEDA Pro";
     exec = "lceda-pro %u";
-    icon = "LCEDA";
+    icon = "lceda";
     categories = [ "Development" ];
     extraConfig = {
       "Name[zh_CN]" = "立创EDA专业版";
