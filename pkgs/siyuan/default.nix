@@ -10,7 +10,8 @@
   pnpm_9,
   electron,
   makeWrapper,
-  makeDesktopItem
+  makeDesktopItem,
+  copyDesktopItems
 }:
 
 let
@@ -22,6 +23,15 @@ let
   };
 
   platformId = platformIds.${stdenv.system} or (throw "Unsupported platform: ${stdenv.system}");
+
+  desktopEntry = makeDesktopItem {
+    name = "siyuan";
+    desktopName = "Siyuan";
+    comment = "Personal knowledge management system";
+    icon = "siyuan";
+    exec = "siyuan %u";
+    categories = [ "Office" ];
+  };
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "siyuan";
@@ -70,6 +80,7 @@ stdenv.mkDerivation (finalAttrs: {
     nodejs
     pnpm.configHook
     makeWrapper
+    copyDesktopItems
   ];
 
   pnpmDeps = pnpm.fetchDeps {
@@ -125,19 +136,12 @@ stdenv.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
-    icon = fetchurl {
-      url = "https://raw.githubusercontent.com/siyuan-note/siyuan/master/app/src/assets/icon.svg";
-      hash = "sha256-S4YCU3wi6sgdKJyfsSL1T6dzZRfasVf92FD2uoHCwWo=";
-    };
+  icon = fetchurl {
+    url = "https://raw.githubusercontent.com/siyuan-note/siyuan/master/app/src/assets/icon.svg";
+    hash = "sha256-S4YCU3wi6sgdKJyfsSL1T6dzZRfasVf92FD2uoHCwWo=";
+  };
 
-    desktopItem = makeDesktopItem {
-      name = "siyuan";
-      desktopName = "Siyuan";
-      comment = "Personal knowledge management system";
-      icon = "siyuan";
-      exec = "siyuan %u";
-      categories = [ "Office" ];
-    };
+  desktopItems = [ desktopEntry ];
 
   meta = {
     description = "Privacy-first personal knowledge management system that supports complete offline usage, as well as end-to-end encrypted data sync";
